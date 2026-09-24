@@ -24,13 +24,17 @@ assert(Poker.compare(hand([14,'s'],[14,'h'],[13,'d'],[9,'c'],[4,'s']).score, han
 assert.equal(Poker.compare(hand([14,'s'],[13,'h'],[12,'d'],[11,'c'],[9,'s']).score,hand([14,'c'],[13,'d'],[12,'h'],[11,'s'],[9,'c']).score),0,'suits do not break a tie');
 assert.equal(Poker.evaluate([C(2,'h'),C(2,'d'),C(9,'h'),C(9,'d'),C(9,'c'),C(14,'s'),C(14,'d')]).score[0],6,'best five of seven');
 
-const source = fs.readFileSync(require.resolve('./app.js'),'utf8').replace(/\}\)\(\);\s*$/, `globalThis.testApi={ui,startGame,newHand,actions,takeAction,finish,render,pot};})();`);
+const source = fs.readFileSync(require.resolve('./app.js'),'utf8').replace(/\}\)\(\);\s*$/, `globalThis.testApi={ui,startGame,newHand,actions,takeAction,finish,render,pot,currentTier,nextTier,TIERS};})();`);
 let queue = [];
 const app = { innerHTML: '', addEventListener() {} };
 const elements = { '#app': app, '#players': { value:'4' }, '#difficulty': { value:'normal' } };
-const ctx = { window:{ Poker, addEventListener(){} }, document:{querySelector(s){return elements[s]}}, setTimeout(fn){queue.push(fn)}, Math, console };
+const saved=new Map();
+const storage={getItem(k){return saved.get(k)||null},setItem(k,v){saved.set(k,v)}};
+const ctx = { window:{ Poker, localStorage:storage, addEventListener(){} }, document:{querySelector(s){return elements[s]}}, setTimeout(fn){queue.push(fn)}, Math, console };
 vm.createContext(ctx); vm.runInContext(source,ctx);
 const api=ctx.testApi;
+assert.equal(api.currentTier().name,'No Tier');
+assert.deepEqual(Array.from(api.TIERS,t=>t.at),[0,1000,5000,15000,40000,100000]);
 const sidePot = {
   mode:'stud', dealer:2, players:[
     {name:'YOU',stack:0,total:100,folded:false,cards:rank[0].cards.concat([C(2,'d'),C(3,'c')])},
@@ -40,6 +44,25 @@ const sidePot = {
 };
 api.ui.game=sidePot;api.ui.screen='game';api.finish(sidePot);
 assert.deepEqual(sidePot.players.map(p=>p.stack),[300,200,0],'main and side pots');
+assert.equal(api.ui.progress.earnings,300,'actual awarded pot added once');
+api.finish(sidePot);
+assert.equal(api.ui.progress.earnings,300,'duplicate settlement ignored');
+const promotion={mode:'stud',dealer:0,players:[
+  {name:'YOU',stack:0,total:400,folded:false,cards:rank[0].cards.concat([C(2,'d'),C(3,'c')])},
+  {name:'Mira',stack:0,total:400,folded:false,cards:rank[8].cards.concat([C(5,'d'),C(6,'s')])}
+],logs:[],finished:false,street:4,difficulty:'normal',hand:2};
+api.ui.game=promotion;api.finish(promotion);
+assert.equal(api.ui.progress.earnings,1100);
+assert.equal(api.currentTier().name,'Silver Spoon');
+assert.equal(promotion.tierPromotion,'Silver Spoon');
+assert.equal(JSON.parse(saved.get('poker-table-progression-v1')).earnings,1100,'browser persistence');
+assert.match(app.innerHTML,/Silver Spoon 승급!/,'promotion appears with hand result');
+api.ui.screen='home';api.render();
+assert.match(app.innerHTML,/Gold Spoon까지 ● 3,900/,'home shows next threshold');
+const reloaded={window:{Poker,localStorage:storage,addEventListener(){}},document:{querySelector(){return {innerHTML:'',addEventListener(){}}}},setTimeout(){},Math,console};
+vm.createContext(reloaded);vm.runInContext(source,reloaded);
+assert.equal(reloaded.testApi.ui.progress.earnings,1100,'restore after reopening');
+assert.equal(reloaded.testApi.currentTier().name,'Silver Spoon');
 api.ui.mode='holdem';api.ui.count=2;api.startGame();
 assert.equal(api.ui.game.players[api.ui.game.dealer].bet,10,'heads-up dealer posts small blind');
 assert.equal(api.ui.game.players[(api.ui.game.dealer+1)%2].bet,20,'heads-up opponent posts big blind');
