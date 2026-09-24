@@ -27,3 +27,21 @@
 .reward-summary b{color:#f6d696}
 .tier-up{display:inline-block;margin-left:10px;color:#f8da97;font-weight:800}
 @media(max-width:510px){.tier-panel{margin-top:19px}.tier-panel.compact{padding:9px 12px}.tier-line strong{font-size:15px}.tier-total{font-size:9px}.tier-total b{font-size:12px}.tier-next{font-size:10px}.tier-next button{font-size:10px}.tier-rule{padding:10px}.tier-rule strong{font-size:12px}.tier-rule small{font-size:10px}}
+/* Winner emphasis and variable bets */
+.result-wrap{max-width:1060px;margin:18px auto 0}
+.result-wrap .action-panel{margin-top:0;border-color:#9b8153;border-top-left-radius:0;border-top-right-radius:0}
+.winner-banner{display:flex;align-items:center;gap:18px;padding:17px 24px;border:2px solid #f5d48b;border-bottom:0;border-radius:16px 16px 0 0;background:linear-gradient(112deg,#f5d48e,#ca9e59 55%,#f4d28c);color:#1c281f;box-shadow:0 0 30px #eabb6d80,0 12px 24px #0005}
+.winner-crown{font-size:35px;line-height:1}
+.winner-label{display:block;letter-spacing:.17em;font-weight:900;font-size:10px}
+.winner-names{display:flex;gap:12px;flex-wrap:wrap;font-size:clamp(20px,2.6vw,29px);font-weight:900;line-height:1.2;margin-top:3px}
+.winner-names span+span{border-left:1px solid #78613b;padding-left:12px}
+.winner-names b{font-size:.7em;margin-left:4px;white-space:nowrap}
+.seat.winner{border-color:#f9db87;box-shadow:0 0 0 2px #f9db87,0 0 27px #ffcf6a9c;background:#334f33}
+.winner-tag{font-size:9px;letter-spacing:.03em;background:#f7d78d;color:#233025;border-radius:4px;padding:2px 5px;font-weight:900}
+.you-row.winner{border:1px solid #f6d883;border-radius:15px;padding:6px 12px;background:#f1c56822;box-shadow:0 0 27px #e9ba6559}
+.action-buttons button.size-option{min-width:89px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 11px}
+.action-buttons button.size-option small,.action-buttons button.all-in small{font-size:10px;font-weight:700;opacity:.8}
+.action-buttons button.all-in{border-color:#e4a09a;background:#993f3d;color:#fff5ea;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 12px}
+.action-buttons button.all-in:hover{background:#b34d47}
+@media(max-width:800px){.winner-banner{padding:14px 16px}.action-buttons button.size-option{min-width:80px}}
+@media(max-width:510px){.winner-banner{gap:10px;padding:12px}.winner-crown{font-size:28px}.winner-names{font-size:20px}.action-buttons button.size-option{min-width:72px;padding:8px}.action-buttons button.all-in{padding:8px}.winner-tag{font-size:7px}}

@@ -1,4 +1,4 @@
-/* Poker Table: static, offline-capable browser UI and fixed-limit game. */
+/* Poker Table: static browser UI and preset-size poker wagering. */
 (() => {
   'use strict';
   const P = window.Poker;
@@ -29,7 +29,7 @@
     holdem: [
       { title: '테이블과 목표', text: '각자 비공개 카드(Hole Cards) 2장을 받고, 모두가 공유하는 커뮤니티 카드 5장과 합쳐 가장 강한 5장을 만듭니다. 패가 같으면 5장의 숫자를 차례대로 비교합니다.', prompt: '먼저 카드가 놓이는 자리를 살펴보세요.', button: '카드 받기' },
       { title: '버튼과 블라인드', text: '버튼(Button)은 딜러 자리 표시입니다. 버튼 왼쪽의 스몰 블라인드 10칩, 그다음 빅 블라인드 20칩이 먼저 들어갑니다. 팟(Pot)은 이 판에 걸린 칩의 합계입니다.', prompt: '당신의 A♠ K♠는 다른 사람에게 보이지 않는 홀 카드입니다.', button: '프리플랍 시작' },
-      { title: '프리플랍 · 첫 결정', text: '공용 카드가 열리기 전입니다. 폴드(Fold)는 포기, 콜(Call)은 현재 베팅에 맞추기, 레이즈(Raise)는 올리기입니다. 지금은 빅 블라인드 20칩에 콜합니다.', prompt: '직접 CALL을 눌러 보세요.', button: 'CALL', action: true },
+      { title: '프리플랍 · 첫 결정', text: '공용 카드가 열리기 전입니다. 폴드(Fold)는 포기, 콜(Call)은 현재 베팅에 맞추기, 레이즈(Raise)는 올리기입니다. 레이즈는 1·2·4배 중 선택하며, ALL-IN은 남은 칩 전부를 겁니다. 지금은 빅 블라인드 20칩에 콜합니다.', prompt: '직접 CALL을 눌러 보세요.', button: 'CALL', action: true },
       { title: '플랍 · 처음 세 장', text: '플랍(Flop)은 처음 공개되는 공용 카드 3장입니다. A♦가 열려 내 A♠와 원페어가 됐습니다. 체크(Check)는 추가 베팅 없이 차례를 넘기는 행동입니다.', prompt: '현재 베팅이 없으니 CHECK를 해보세요.', button: 'CHECK', action: true },
       { title: '턴 · 네 번째 카드', text: '턴(Turn)에서 K♦가 열려 A와 K의 투페어가 됐습니다. 베트(Bet)는 아무도 베팅하지 않았을 때 처음 거는 행동입니다. 다른 사람이 베팅하면 콜·레이즈·폴드 중 선택합니다.', prompt: '이번에는 BET로 먼저 베팅해 보세요.', button: 'BET', action: true },
       { title: '리버 · 마지막 카드', text: '리버(River)에 K♣가 열렸습니다. 현재 최선의 5장은 K♠ K♦ K♣ A♠ A♦, 즉 K 풀하우스입니다. 내 카드 2장을 반드시 모두 쓸 필요는 없고, 공용 카드만 5장 써도 됩니다.', prompt: 'CALL로 마지막 베팅을 맞추고 쇼다운에 가보세요.', button: 'CALL', action: true },
@@ -40,7 +40,7 @@
       { title: '세븐 스터드의 목표', text: '공용 카드 없이 각자 일곱 장을 받습니다. 처음 두 장과 마지막 한 장은 비공개, 나머지 네 장은 공개하며 최선의 5장으로 승부합니다.', prompt: '상대의 공개 카드(Up Cards)를 보고 가능한 패를 추론합니다.', button: '카드 받기' },
       { title: '앤티와 서드 스트리트', text: '모두 앤티(Ante) 5칩을 냅니다. 처음에 비공개 2장(Down Cards)과 공개 1장(Door Card)을 받습니다. 가장 낮은 도어 카드를 가진 사람이 브링인(Bring-in)을 내고 베팅을 시작합니다.', prompt: '내 A♠ K♠는 비공개, Q♠는 도어 카드입니다.', button: 'CALL', action: true },
       { title: '포스 스트리트', text: '네 번째 카드 J♠가 앞면으로 열립니다. 여기부터는 공개된 카드가 가장 강한 사람부터 행동합니다. 체크는 베팅이 없을 때만 가능합니다.', prompt: '상대가 체크했습니다. CHECK를 선택하세요.', button: 'CHECK', action: true },
-      { title: '피프스 스트리트', text: '다섯 번째 카드 10♠가 앞면으로 열립니다. 이제 비공개 A♠ K♠와 연결하면 로열 스트레이트 플러시가 완성됩니다. 이 거리부터 베팅 단위가 20칩에서 40칩으로 커집니다.', prompt: 'BET으로 베팅해 보세요.', button: 'BET', action: true },
+      { title: '피프스 스트리트', text: '다섯 번째 카드 10♠가 앞면으로 열립니다. 이제 비공개 A♠ K♠와 연결하면 로열 스트레이트 플러시가 완성됩니다. 기본 베팅 단위는 40칩으로 커지며 BET 1·2·4배나 ALL-IN을 선택할 수 있습니다.', prompt: 'BET으로 베팅해 보세요.', button: 'BET', action: true },
       { title: '식스스 스트리트', text: '여섯 번째 카드 4♦가 공개됩니다. 내 공개 카드 Q♠ J♠ 10♠ 4♦가 상대에게도 보입니다. 상대의 공개 카드 또한 상대가 가질 수 있는 패를 추론할 단서입니다.', prompt: '상대 베팅에 CALL하세요.', button: 'CALL', action: true },
       { title: '세븐스 스트리트 · 리버', text: '마지막 카드는 비공개(Down Card)로 받습니다. 일곱 장 중 최선의 다섯 장으로 판정하며 카드 무늬 자체에는 우열이 없습니다.', prompt: 'CHECK로 마지막 결정을 마치세요.', button: 'CHECK', action: true },
       { title: '쇼다운 · 최강의 패', text: '내 A♠ K♠ Q♠ J♠ 10♠는 로열 스트레이트 플러시로 최강의 족보입니다. 상대의 풀하우스를 이깁니다. 둘 다 같은 5장 가치라면 팟을 나눕니다.', prompt: '마지막으로 최강부터 최약까지 족보를 확인해 보세요.', button: '족보 살펴보기' },
@@ -85,7 +85,7 @@
     return `<main class="home"><section class="hero"><div><div class="eyebrow">A CARD GAME FOR CURIOUS MINDS</div><h1>Make your<br><em>move.</em></h1><p>카드를 읽고, 상대를 살피고, 한 장씩 배우세요. 세븐 스터드와 텍사스 홀덤을 AI 플레이어와 즐길 수 있습니다.</p><div class="hero-actions"><button class="primary" data-do="setup">START GAME &nbsp; ↗</button><button class="ghost" data-do="tutorial-menu">▶ TUTORIAL</button></div>${tierPanel()}<p class="tiny">무료 브라우저 게임 · 로그인 불필요 · 칩은 게임 내 가상 칩입니다</p></div><div class="hero-art" aria-hidden="true"><div class="art-label">The game is on.</div><div class="art-cards">${cardHTML(tc(14,'s'))}${cardHTML(tc(13,'s'))}${cardHTML(tc(12,'s'))}</div><div class="art-chip">100</div></div></section></main>`;
   }
   function menuView(tutorial) {
-    return `<main class="setup-wrap"><div class="eyebrow">${tutorial ? 'LEARN BY PLAYING' : 'PICK YOUR TABLE'}</div><h1 class="screen-title">${tutorial ? '어떤 게임을 배울까요?' : '게임 설정'}</h1><p class="muted">${tutorial ? '각 모드의 한 판을 직접 진행하며 카드, 베팅, 족보를 익힙니다.' : '게임 모드와 AI 상대 수를 선택하세요. 모두 같은 1,000칩으로 시작합니다.'}</p><div class="mode-grid"><button class="mode-card ${!tutorial && ui.mode === 'stud' ? 'selected' : ''}" data-do="${tutorial ? 'learn-stud' : 'mode-stud'}"><span class="eyebrow">01 / NO SHARED CARDS</span><strong>Seven Card Stud</strong><small>7장을 각자 받으며 공개 카드와 비공개 카드로 겨룹니다. 앤티 · 브링인 · 서드부터 세븐스 스트리트.</small></button><button class="mode-card ${!tutorial && ui.mode === 'holdem' ? 'selected' : ''}" data-do="${tutorial ? 'learn-holdem' : 'mode-holdem'}"><span class="eyebrow">02 / SHARED BOARD</span><strong>Texas Hold’em</strong><small>개인 카드 2장과 공용 카드 5장. 블라인드 · 플랍 · 턴 · 리버.</small></button></div>${tutorial ? '<p class="tiny">각 튜토리얼은 약 5분 분량이며 ? HAND GUIDE로 족보를 확인할 수 있습니다.</p>' : `<div class="field-row"><label class="field">테이블 인원 (나 + AI)<select id="players">${[2,3,4,5,6].map(n=>`<option value="${n}" ${n===ui.count?'selected':''}>${n}명 · AI ${n-1}명</option>`).join('')}</select></label><label class="field">AI 난이도<select id="difficulty"><option value="easy" ${ui.difficulty==='easy'?'selected':''}>Easy · 기본 패 위주</option><option value="normal" ${ui.difficulty==='normal'?'selected':''}>Normal · 팟과 공개 카드 고려</option><option value="hard" ${ui.difficulty==='hard'?'selected':''}>Hard · 상대 범위와 블러핑 고려</option></select></label></div><div class="setup-footer"><span class="tiny">고정 리미트 베팅 · 매 판 딜러 버튼 이동</span><button class="primary" data-do="start">테이블 입장 →</button></div>`}</main>`;
+    return `<main class="setup-wrap"><div class="eyebrow">${tutorial ? 'LEARN BY PLAYING' : 'PICK YOUR TABLE'}</div><h1 class="screen-title">${tutorial ? '어떤 게임을 배울까요?' : '게임 설정'}</h1><p class="muted">${tutorial ? '각 모드의 한 판을 직접 진행하며 카드, 베팅, 족보를 익힙니다.' : '게임 모드와 AI 상대 수를 선택하세요. 모두 같은 1,000칩으로 시작합니다.'}</p><div class="mode-grid"><button class="mode-card ${!tutorial && ui.mode === 'stud' ? 'selected' : ''}" data-do="${tutorial ? 'learn-stud' : 'mode-stud'}"><span class="eyebrow">01 / NO SHARED CARDS</span><strong>Seven Card Stud</strong><small>7장을 각자 받으며 공개 카드와 비공개 카드로 겨룹니다. 앤티 · 브링인 · 서드부터 세븐스 스트리트.</small></button><button class="mode-card ${!tutorial && ui.mode === 'holdem' ? 'selected' : ''}" data-do="${tutorial ? 'learn-holdem' : 'mode-holdem'}"><span class="eyebrow">02 / SHARED BOARD</span><strong>Texas Hold’em</strong><small>개인 카드 2장과 공용 카드 5장. 블라인드 · 플랍 · 턴 · 리버.</small></button></div>${tutorial ? '<p class="tiny">각 튜토리얼은 약 5분 분량이며 ? HAND GUIDE로 족보를 확인할 수 있습니다.</p>' : `<div class="field-row"><label class="field">테이블 인원 (나 + AI)<select id="players">${[2,3,4,5,6].map(n=>`<option value="${n}" ${n===ui.count?'selected':''}>${n}명 · AI ${n-1}명</option>`).join('')}</select></label><label class="field">AI 난이도<select id="difficulty"><option value="easy" ${ui.difficulty==='easy'?'selected':''}>Easy · 기본 패 위주</option><option value="normal" ${ui.difficulty==='normal'?'selected':''}>Normal · 팟과 공개 카드 고려</option><option value="hard" ${ui.difficulty==='hard'?'selected':''}>Hard · 상대 범위와 블러핑 고려</option></select></label></div><div class="setup-footer"><span class="tiny">베팅 1×·2×·4×·올인 · 매 판 딜러 버튼 이동</span><button class="primary" data-do="start">테이블 입장 →</button></div>`}</main>`;
   }
   function eligible(g, i) { const p = g.players[i]; return !p.folded && p.stack > 0; }
   function live(g) { return g.players.filter(p => !p.folded); }
@@ -99,7 +99,7 @@
   function log(g, line) { g.logs.unshift(line); g.logs = g.logs.slice(0, 8); }
   function startGame() {
     ui.epoch++;
-    ui.game = { mode: ui.mode, difficulty: ui.difficulty, players: Array.from({length: ui.count}, (_, i) => ({ name: i ? AI_NAMES[i-1] : 'YOU', stack: 1000, cards: [], folded: false, bet: 0, total: 0 })), dealer: -1, hand: 0, deck: [], board: [], street: 0, currentBet: 0, raises: 0, pending: new Set(), actor: null, finished: false, logs: [], result: '', prize:0, tierPromotion:null };
+    ui.game = { mode: ui.mode, difficulty: ui.difficulty, players: Array.from({length: ui.count}, (_, i) => ({ name: i ? AI_NAMES[i-1] : 'YOU', stack: 1000, cards: [], folded: false, bet: 0, total: 0 })), dealer: -1, hand: 0, deck: [], board: [], street: 0, currentBet: 0, minRaise:20, pending: new Set(), acted:new Set(), actor: null, finished: false, logs: [], result: '', prize:0, tierPromotion:null, winners:[], refunds:0 };
     ui.screen = 'game'; newHand();
   }
   function newHand() {
@@ -109,7 +109,7 @@
     for (const p of g.players) { p.cards = []; p.folded = p.stack === 0; p.bet = 0; p.total = 0; }
     if (g.players.filter(p => !p.folded).length < 2) { g.result = 'AI 플레이어의 칩이 모두 소진됐습니다. 새 게임을 시작해 주세요.'; g.finished = true; render(); return; }
     g.dealer = nextEligible(g, g.dealer);
-    g.hand++; g.street = 0; g.currentBet = 0; g.raises = 0; g.finished = false; g.result = ''; g.prize=0; g.tierPromotion=null; g.logs = [];
+    g.hand++; g.street = 0; g.currentBet = 0; g.minRaise=20; g.acted=new Set(); g.finished = false; g.result = ''; g.prize=0; g.tierPromotion=null; g.winners=[]; g.refunds=0; g.logs = [];
     g.deck = P.shuffle(P.deck()); g.board = [];
     if (g.mode === 'holdem') {
       for (let k = 0; k < 2; k++) for (let i = 0; i < g.players.length; i++) if (!g.players[i].folded) g.players[i].cards.push(draw(g));
@@ -133,12 +133,13 @@
       advance(g,bring);
     }
   }
-  function unit(g) { return g.mode === 'holdem' ? (g.street >= 2 ? 40 : 20) : (g.street >= 2 ? 40 : 20); }
-  function targetBet(g) { return g.mode==='stud' && g.street===0 && g.currentBet===10 ? 20 : g.currentBet+unit(g); }
+  function unit(g) { return g.street >= 2 ? 40 : 20; }
+  function targetBet(g, multiple=1) { return g.currentBet<unit(g) ? unit(g)*multiple : g.currentBet+g.minRaise*multiple; }
   function actions(g, i) {
     const p = g.players[i], need = Math.max(0, g.currentBet - p.bet);
-    const canRaise = g.raises < 3 && p.stack >= targetBet(g)-p.bet && live(g).filter(q=>q!==p && !q.folded && q.stack>0).length > 0;
-    return { need, canRaise, canCheck: need === 0, canCall: need > 0 && p.stack > 0, canFold: true };
+    const rivalCanAct=live(g).some(q=>q!==p && q.stack>0);
+    const raiseRight=(!g.acted.has(i) || g.currentBet<unit(g)) && rivalCanAct;
+    return { need, canRaise:raiseRight && p.stack>=targetBet(g)-p.bet, canAllIn:p.stack>0 && (p.bet+p.stack<=g.currentBet || raiseRight), canCheck:need===0, canCall:need>0&&p.stack>0, canFold:true };
   }
   function advance(g, from) {
     if (live(g).length === 1) { finish(g); return; }
@@ -167,7 +168,7 @@
     if (g.street >= (g.mode === 'holdem' ? 4 : 5)) { finish(g); return; }
     if (g.mode === 'stud') for (const p of g.players) if (!p.folded) p.cards.push(draw(g));
     for (const p of g.players) p.bet=0;
-    g.currentBet=0; g.raises=0;
+    g.currentBet=0; g.minRaise=unit(g); g.acted=new Set();
     g.pending=new Set(g.players.map((_,i)=>i).filter(i=>eligible(g,i)));
     log(g, streetName(g) + ' 시작');
     if (g.pending.size === 0 || g.pending.size === 1 && live(g).length === 1) { nextStreet(g); return; }
@@ -179,16 +180,32 @@
     const g=ui.game;
     if (!g || g.finished || ui.pause || ui.guide || ui.tiers || g.actor===null) return;
     const i=g.actor,p=g.players[i],allowed=actions(g,i);
-    if (kind==='check' && !allowed.canCheck || kind==='call' && !allowed.canCall || (kind==='raise'||kind==='bet') && !allowed.canRaise) return;
-    if (kind==='fold') { p.folded=true; g.pending.delete(i); log(g,`${p.name} 폴드`); }
-    else if (kind==='check') { g.pending.delete(i); log(g,`${p.name} 체크`); }
-    else if (kind==='call') { const paid=pay(g,i,allowed.need); g.pending.delete(i); log(g,`${p.name} ${paid===allowed.need?'콜':'올인'} ${money(paid)}`); }
-    else if (kind==='raise'||kind==='bet') {
-      const wasFull=g.currentBet>=unit(g),target=targetBet(g);
+    const isSized=/^(bet|raise)[124]$/.test(kind);
+    if (kind==='check' && !allowed.canCheck || kind==='call' && !allowed.canCall || isSized && !allowed.canRaise || kind==='allin' && !allowed.canAllIn) return;
+    if (kind==='fold') { p.folded=true; g.pending.delete(i); g.acted.add(i); log(g,`${p.name} 폴드`); }
+    else if (kind==='check') { g.pending.delete(i); g.acted.add(i); log(g,`${p.name} 체크`); }
+    else if (kind==='call') { const paid=pay(g,i,allowed.need); g.pending.delete(i); g.acted.add(i); log(g,`${p.name} ${paid===allowed.need?'콜':'올인 콜'} ${money(paid)}`); }
+    else if (isSized) {
+      const multiple=Number(kind.at(-1)),target=targetBet(g,multiple);
+      if(p.stack<target-p.bet)return;
+      const previous=g.currentBet;
       pay(g,i,target-p.bet); g.currentBet=target;
-      if (wasFull) g.raises++;
+      g.minRaise=previous<unit(g)?Math.max(unit(g),target-previous):target-previous;
+      g.acted=new Set([i]);
       g.pending=new Set(g.players.map((_,j)=>j).filter(j=>j!==i && eligible(g,j)));
-      log(g,`${p.name} ${kind==='bet'?'베트':'레이즈'} → ${money(target)}`);
+      log(g,`${p.name} ${previous?'레이즈':'베트'} ×${multiple} → ${money(target)}`);
+    } else if (kind==='allin') {
+      const previous=g.currentBet,minimum=targetBet(g,1),target=p.bet+p.stack,paid=pay(g,i,p.stack);
+      g.pending.delete(i); g.acted.add(i);
+      if(target>previous){
+        g.currentBet=target;
+        if(target>=minimum){
+          g.minRaise=previous<unit(g)?Math.max(unit(g),target-previous):target-previous;
+          g.acted=new Set([i]);
+          g.pending=new Set(g.players.map((_,j)=>j).filter(j=>j!==i && eligible(g,j)));
+        }else for(let j=0;j<g.players.length;j++)if(j!==i && eligible(g,j) && g.players[j].bet<target)g.pending.add(j);
+      }
+      log(g,`${p.name} 올인 ${money(paid)} · 총 베팅 ${money(target)}`);
     } else return;
     advance(g,i);
   }
@@ -199,10 +216,13 @@
     const survivors=live(g);
     const ranks=new Map(survivors.map(p=>[p,bestFor(g,p)]));
     const levels=[...new Set(g.players.map(p=>p.total).filter(Boolean))].sort((a,b)=>a-b);
-    let previous=0; const winnings=new Map();
+    let previous=0; const winnings=new Map(); g.refunds=0;
     for (const level of levels) {
       const participants=g.players.filter(p=>p.total>=level);
       const amount=(level-previous)*participants.length;
+      if(participants.length===1){ // No opponent matched this portion; return it, without counting a prize.
+        participants[0].stack+=amount;g.refunds+=amount;previous=level;continue;
+      }
       let candidates=participants.filter(p=>!p.folded);
       if (!candidates.length) candidates=survivors; // Defensive fallback for a short unmatched wager.
       let winners=[];
@@ -217,7 +237,8 @@
       for(let k=0;k<remainder;k++){order[k].stack++;winnings.set(order[k],winnings.get(order[k])+1);}
       previous=level;
     }
-    const winners=[...winnings].filter(([,v])=>v>0).map(([p,v])=>`${p.name} +${money(v)}`);
+    g.winners=[...winnings].filter(([,v])=>v>0).map(([p,amount])=>({i:g.players.indexOf(p),name:p.name,amount}));
+    const winners=g.winners.map(w=>`${w.name} +${money(w.amount)}`);
     const oldTier=currentTier();
     g.prize=winnings.get(g.players[0])||0;
     ui.progress.earnings=Math.min(Number.MAX_SAFE_INTEGER,ui.progress.earnings+g.prize);
@@ -270,8 +291,13 @@
     const foldThreshold=Math.max(.12,price*(difficulty==='hard'?1.1:1.5)+caution);
     const raiseThreshold=difficulty==='hard'?.68:.74;
     if(a.need>0 && strength<foldThreshold && noise>(difficulty==='hard'?.15:.07))return 'fold';
-    if(a.canRaise && strength>raiseThreshold && noise>.36)return a.need?'raise':'bet';
-    if(a.canRaise && difficulty==='hard' && strength>.34 && noise>.9 && count<=3)return a.need?'raise':'bet';
+    if(a.canAllIn && difficulty==='hard' && strength>.93 && noise>.975 && count<=3 && p.stack>a.need+unit(g))return 'allin';
+    if(a.canRaise && strength>raiseThreshold && noise>.36){
+      const multiple=difficulty==='hard' && strength>.86 && noise>.76?4:strength>.79&&noise>.62?2:1;
+      const affordable=[multiple,2,1].find(m=>p.stack>=targetBet(g,m)-p.bet)||1;
+      return `${g.currentBet?'raise':'bet'}${affordable}`;
+    }
+    if(a.canRaise && difficulty==='hard' && strength>.34 && noise>.9 && count<=3)return g.currentBet?'raise1':'bet1';
     return a.need?'call':'check';
   }
   function scheduleAI() {
@@ -290,17 +316,27 @@
     return p.cards.map((c,k)=>cardHTML(reveal||k>=2&&k<=5?c:'back',{small:!owner})).join('');
   }
   function opponentHTML(g,p,i) {
-    return `<div class="seat ${p.folded?'folded':''} ${g.actor===i?'turn':''}"><div class="seat-name">${p.name} ${g.dealer===i?'<span class="badge">D</span>':''} ${p.stack===0&&p.total>0?'<span class="badge">ALL IN</span>':''}</div><div class="seat-stack">● ${money(p.stack)}</div><div class="seat-cards">${visibleCards(g,p,false)}</div><div class="seat-bet">${p.bet?`베팅 ${money(p.bet)}`:'&nbsp;'}</div></div>`;
+    const winner=g.finished&&g.winners?.some(w=>w.i===i);
+    return `<div class="seat ${p.folded?'folded':''} ${g.actor===i?'turn':''} ${winner?'winner':''}"><div class="seat-name">${p.name} ${winner?'<span class="winner-tag">WINNER</span>':''} ${g.dealer===i?'<span class="badge">D</span>':''} ${p.stack===0&&p.total>0?'<span class="badge">ALL IN</span>':''}</div><div class="seat-stack">● ${money(p.stack)}</div><div class="seat-cards">${visibleCards(g,p,false)}</div><div class="seat-bet">${p.bet?`베팅 ${money(p.bet)}`:'&nbsp;'}</div></div>`;
   }
   function gameTable(g) {
     const self=g.players[0],showdown=g.finished&&live(g).length>1,rank=showdown&&!self.folded?bestFor(g,self):P.evaluate(g.mode==='holdem'?[...self.cards,...g.board.slice(0,[0,3,4,5][g.street])]:self.cards);
     const boardCount=[0,3,4,5][g.street]||0;
-    return `<section class="table-stage ${g.mode==='stud'?'stud-table':''}"><div class="felt"><div class="opponents">${g.players.slice(1).map((p,i)=>opponentHTML(g,p,i+1)).join('')}</div><div class="table-middle"><div class="pot-label">TOTAL POT</div><div class="pot-value">● ${money(pot(g))}</div>${g.mode==='holdem'?`<div class="community">${g.board.map((c,k)=>`<div class="board-slot">${cardHTML(k<boardCount||showdown?c:null)}<div class="board-caption">${k===0?'── FLOP ──':k===3?'TURN':k===4?'RIVER':'·'}</div></div>`).join('')}</div><div class="table-note">COMMUNITY CARDS · 모두가 공유하는 공용 카드</div>`:`<div class="table-note">NO COMMUNITY CARDS · 각자 7장을 받아 가장 강한 5장을 만듭니다</div>`}</div><div class="you-row"><div class="you-info"><strong>YOU ${g.dealer===0?'ⓓ':''}</strong><small>● ${money(self.stack)}<br>${self.bet?`베팅 ${money(self.bet)}`:'당신의 카드'}</small></div><div class="your-cards ${g.mode==='stud'?'stud':''}">${visibleCards(g,self,true)}</div><div class="your-rank">${self.folded?'이번 판 폴드':rank?`현재 최선의 패<strong>${rank.name}</strong>`:'패를 만들어 보세요'}</div></div></div></section>`;
+    return `<section class="table-stage ${g.mode==='stud'?'stud-table':''}"><div class="felt"><div class="opponents">${g.players.slice(1).map((p,i)=>opponentHTML(g,p,i+1)).join('')}</div><div class="table-middle"><div class="pot-label">TOTAL POT</div><div class="pot-value">● ${money(pot(g)-(g.finished?g.refunds||0:0))}</div>${g.mode==='holdem'?`<div class="community">${g.board.map((c,k)=>`<div class="board-slot">${cardHTML(k<boardCount||showdown?c:null)}<div class="board-caption">${k===0?'── FLOP ──':k===3?'TURN':k===4?'RIVER':'·'}</div></div>`).join('')}</div><div class="table-note">COMMUNITY CARDS · 모두가 공유하는 공용 카드</div>`:`<div class="table-note">NO COMMUNITY CARDS · 각자 7장을 받아 가장 강한 5장을 만듭니다</div>`}</div><div class="you-row ${g.finished&&g.winners?.some(w=>w.i===0)?'winner':''}"><div class="you-info"><strong>YOU ${g.dealer===0?'ⓓ':''} ${g.finished&&g.winners?.some(w=>w.i===0)?'<span class="winner-tag">WINNER</span>':''}</strong><small>● ${money(self.stack)}<br>${self.bet?`베팅 ${money(self.bet)}`:'당신의 카드'}</small></div><div class="your-cards ${g.mode==='stud'?'stud':''}">${visibleCards(g,self,true)}</div><div class="your-rank">${self.folded?'이번 판 폴드':rank?`현재 최선의 패<strong>${rank.name}</strong>`:'패를 만들어 보세요'}</div></div></div></section>`;
   }
   function controls(g) {
-    if(g.finished) return `<div class="action-panel"><div class="action-copy"><strong>${g.result}</strong><small>${live(g).length===1?'쇼다운 없이 팟 획득':live(g).map(p=>`${p.name}: ${bestFor(g,p)?.name||'패 없음'}`).join(' · ')}</small><div class="reward-summary">이번 판 상금 <b>● ${money(g.prize||0)}</b> · 누적 <b>● ${money(ui.progress.earnings)}</b>${g.tierPromotion?`<span class="tier-up">↗ ${g.tierPromotion} 승급!</span>`:''}</div></div><div class="action-buttons"><button class="raise" data-do="next-hand" ${g.players[0].stack===0?'disabled':''}>다음 판 →</button><button data-do="setup">새 게임</button></div></div>`;
+    if(g.finished){
+      const winners=g.winners||[];
+      const banner=winners.length?`<div class="winner-banner" role="status"><span class="winner-crown">♛</span><div><span class="winner-label">${winners.length>1?'POT WINNERS':'HAND WINNER'}</span><div class="winner-names">${winners.map(w=>`<span>${w.name} <b>+${money(w.amount)}</b></span>`).join('')}</div></div></div>`:'';
+      return `<div class="result-wrap">${banner}<div class="action-panel"><div class="action-copy"><strong>${g.result}</strong><small>${live(g).length===1?'쇼다운 없이 팟 획득':live(g).map(p=>`${p.name}: ${bestFor(g,p)?.name||'패 없음'}`).join(' · ')}</small><div class="reward-summary">이번 판 상금 <b>● ${money(g.prize||0)}</b> · 누적 <b>● ${money(ui.progress.earnings)}</b>${g.tierPromotion?`<span class="tier-up">↗ ${g.tierPromotion} 승급!</span>`:''}</div></div><div class="action-buttons"><button class="raise" data-do="next-hand" ${g.players[0].stack===0?'disabled':''}>다음 판 →</button><button data-do="setup">새 게임</button></div></div></div>`;
+    }
     if(g.actor!==0)return `<div class="action-panel"><div class="action-copy"><strong>${g.players[g.actor]?.name||'AI'} 생각 중…</strong><small>${streetName(g)} · AI의 행동을 기다려 주세요.</small></div></div>`;
-    const a=actions(g,0);return `<div class="action-panel"><div class="action-copy"><strong>당신의 차례 · ${streetName(g)}</strong><small>현재 베팅 ${money(g.currentBet)} · ${a.need?`콜 ${money(Math.min(g.players[0].stack,a.need))}`:'추가 베팅 없음'} · 베팅 단위 ${unit(g)}</small></div><div class="action-buttons"><button class="fold" data-do="fold">FOLD</button>${a.canCheck?'<button data-do="check">CHECK</button>':`<button data-do="call">CALL ${money(Math.min(g.players[0].stack,a.need))}</button>`}<button class="raise" data-do="${a.need?'raise':'bet'}" ${a.canRaise?'':'disabled'}>${a.need?'RAISE':'BET'} +${targetBet(g)-g.currentBet}</button></div></div>`;
+    const a=actions(g,0),self=g.players[0];
+    const sized=[1,2,4].map(m=>{
+      const target=targetBet(g,m),possible=a.canRaise&&self.stack>=target-self.bet;
+      return `<button class="raise size-option" data-do="${g.currentBet?'raise':'bet'}${m}" ${possible?'':'disabled'}><span>${g.currentBet?'RAISE':'BET'} ×${m}</span><small>총 ● ${money(target)}</small></button>`;
+    }).join('');
+    return `<div class="action-panel"><div class="action-copy"><strong>당신의 차례 · ${streetName(g)}</strong><small>현재 베팅 ${money(g.currentBet)} · ${a.need?`콜 ${money(Math.min(self.stack,a.need))}`:'추가 베팅 없음'} · 기본 단위 ${unit(g)}</small></div><div class="action-buttons"><button class="fold" data-do="fold">FOLD</button>${a.canCheck?'<button data-do="check">CHECK</button>':`<button data-do="call">CALL ${money(Math.min(self.stack,a.need))}</button>`}${sized}<button class="all-in" data-do="allin" ${a.canAllIn?'':'disabled'}><span>ALL-IN</span><small>총 ● ${money(self.bet+self.stack)}</small></button></div></div>`;
   }
   function gameView() {
     const g=ui.game;
@@ -331,7 +367,7 @@
     return `<div class="overlay" role="dialog" aria-modal="true" aria-label="상금 티어 기준"><div class="modal" style="max-width:650px"><div class="modal-header"><div><div class="eyebrow">PRIZE SYSTEM / SPOON TIERS</div><h2>상금 티어</h2><div class="muted">두 게임의 누적 획득 상금으로 승급합니다.</div></div><button class="close" data-do="tiers">닫기 ✕</button></div><div class="tier-rules">${TIERS.map((tier,i)=>`<div class="tier-rule ${current===tier?'current':''}"><span class="tier-rule-icon">${tier.icon}</span><div><strong>${tier.name}</strong><small>${i===TIERS.length-1?`누적 ● ${money(tier.at)} 이상`:`누적 ● ${money(tier.at)} ~ ${money(TIERS[i+1].at-1)}`}</small></div>${current===tier?'<span class="tier-now">CURRENT</span>':''}</div>`).join('')}</div><div class="rules-box"><b>상금 집계:</b> 게임 한 판에서 실제로 받은 팟 칩만 누적합니다. 패배한 판의 상금은 0이며 이미 획득한 상금과 티어는 줄지 않습니다. 튜토리얼은 집계하지 않습니다.<br><b>현재 기록:</b> 누적 상금 ● ${money(ui.progress.earnings)} · 상금 획득 ${money(ui.progress.wins)}판 / 플레이 ${money(ui.progress.hands)}판.<br><b>저장:</b> ${ui.progress.persistent?'이 브라우저의 로컬 저장소에 자동 보관됩니다.':'현재 브라우저에서 저장할 수 없어 페이지를 닫으면 기록이 사라질 수 있습니다.'} 다른 기기나 브라우저와는 동기화되지 않습니다.</div></div></div>`;
   }
   function pauseView() {return `<div class="overlay" role="dialog" aria-modal="true" aria-label="일시정지"><div class="modal" style="max-width:410px"><div class="eyebrow">TABLE PAUSED</div><h2>일시정지</h2><p class="muted">현재 판을 이어가거나 새로 시작할 수 있습니다.</p><div class="hero-actions"><button class="primary" data-do="pause">계속하기</button><button class="ghost" data-do="restart">새 게임</button><button class="ghost" data-do="home">메인 메뉴</button></div></div></div>`;}
-  function render() { app.innerHTML=`<div class="shell">${header()}${ui.screen==='home'?homeView():ui.screen==='setup'?menuView(false):ui.screen==='tutorial-menu'?menuView(true):ui.screen==='tutorial'?tutorialView():gameView()}<div class="footer-note">POKER TABLE · 브라우저에서 즐기는 가상 칩 게임 · 베팅 단위 20 / 40</div></div>${ui.tiers?tierView():ui.guide?guideView():ui.pause?pauseView():''}`; }
+  function render() { app.innerHTML=`<div class="shell">${header()}${ui.screen==='home'?homeView():ui.screen==='setup'?menuView(false):ui.screen==='tutorial-menu'?menuView(true):ui.screen==='tutorial'?tutorialView():gameView()}<div class="footer-note">POKER TABLE · 브라우저에서 즐기는 가상 칩 게임 · 기본 베팅 20 / 40 · 1× 2× 4× ALL-IN</div></div>${ui.tiers?tierView():ui.guide?guideView():ui.pause?pauseView():''}`; }
   app.addEventListener('click',e=>{
     const b=e.target.closest('[data-do]');if(!b)return;
     const cmd=b.dataset.do;
@@ -347,7 +383,7 @@
     if(cmd==='next-hand'){if(ui.game&&ui.game.finished)newHand();return;}
     if(cmd==='lesson-back'){ui.lesson=Math.max(0,ui.lesson-1);ui.tutorialFeedback='';render();return;}
     if(cmd==='lesson-next'){if(ui.lesson===TUTORIALS[ui.mode].length-1){ui.screen='tutorial-menu';ui.lesson=0;}else ui.lesson++;ui.tutorialFeedback='';render();return;}
-    if(['fold','check','call','bet','raise'].includes(cmd))takeAction(cmd);
+    if(['fold','check','call','allin'].includes(cmd)||/^(bet|raise)[124]$/.test(cmd))takeAction(cmd);
   });
   app.addEventListener('change',e=>{if(e.target.id==='players')ui.count=Number(e.target.value);if(e.target.id==='difficulty')ui.difficulty=e.target.value;});
   window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(ui.tiers){ui.tiers=false;render();}else if(ui.guide){ui.guide=false;render();}else if(ui.screen==='game'){ui.pause=!ui.pause;render();if(!ui.pause)scheduleAI();}}});

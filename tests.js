@@ -24,7 +24,7 @@ assert(Poker.compare(hand([14,'s'],[14,'h'],[13,'d'],[9,'c'],[4,'s']).score, han
 assert.equal(Poker.compare(hand([14,'s'],[13,'h'],[12,'d'],[11,'c'],[9,'s']).score,hand([14,'c'],[13,'d'],[12,'h'],[11,'s'],[9,'c']).score),0,'suits do not break a tie');
 assert.equal(Poker.evaluate([C(2,'h'),C(2,'d'),C(9,'h'),C(9,'d'),C(9,'c'),C(14,'s'),C(14,'d')]).score[0],6,'best five of seven');
 
-const source = fs.readFileSync(require.resolve('./app.js'),'utf8').replace(/\}\)\(\);\s*$/, `globalThis.testApi={ui,startGame,newHand,actions,takeAction,finish,render,pot,currentTier,nextTier,TIERS};})();`);
+const source = fs.readFileSync(require.resolve('./app.js'),'utf8').replace(/\}\)\(\);\s*$/, `globalThis.testApi={ui,startGame,newHand,actions,takeAction,finish,render,pot,currentTier,nextTier,TIERS,targetBet};})();`);
 let queue = [];
 const app = { innerHTML: '', addEventListener() {} };
 const elements = { '#app': app, '#players': { value:'4' }, '#difficulty': { value:'normal' } };
@@ -44,6 +44,9 @@ const sidePot = {
 };
 api.ui.game=sidePot;api.ui.screen='game';api.finish(sidePot);
 assert.deepEqual(sidePot.players.map(p=>p.stack),[300,200,0],'main and side pots');
+assert.deepEqual(Array.from(sidePot.winners,w=>w.name),['YOU','Mira'],'both pots identify winners');
+assert.match(app.innerHTML,/class="winner-banner"/,'winner result is highlighted');
+assert.match(app.innerHTML,/winner-tag/,'winning seats have a badge');
 assert.equal(api.ui.progress.earnings,300,'actual awarded pot added once');
 api.finish(sidePot);
 assert.equal(api.ui.progress.earnings,300,'duplicate settlement ignored');
@@ -63,6 +66,17 @@ const reloaded={window:{Poker,localStorage:storage,addEventListener(){}},documen
 vm.createContext(reloaded);vm.runInContext(source,reloaded);
 assert.equal(reloaded.testApi.ui.progress.earnings,1100,'restore after reopening');
 assert.equal(reloaded.testApi.currentTier().name,'Silver Spoon');
+const unmatched={mode:'stud',dealer:0,players:[
+  {name:'YOU',stack:0,total:100,folded:false,cards:rank[0].cards.concat([C(2,'d'),C(3,'c')])},
+  {name:'Mira',stack:0,total:200,folded:false,cards:rank[2].cards.concat([C(3,'d'),C(4,'s')])},
+  {name:'Jude',stack:0,total:300,folded:false,cards:rank[8].cards.concat([C(5,'d'),C(6,'s')])}
+],logs:[],finished:false,street:4,difficulty:'normal',hand:3};
+api.ui.game=unmatched;api.ui.screen='game';api.finish(unmatched);
+assert.deepEqual(unmatched.players.map(p=>p.stack),[300,200,100],'unmatched wager returned');
+assert.equal(unmatched.refunds,100);
+assert.deepEqual(Array.from(unmatched.winners,w=>w.name),['YOU','Mira'],'refund recipient is not a winner');
+assert.match(app.innerHTML,/TOTAL POT/);
+assert.match(app.innerHTML,/● 500/,'displayed pot excludes refund');
 api.ui.mode='holdem';api.ui.count=2;api.startGame();
 assert.equal(api.ui.game.players[api.ui.game.dealer].bet,10,'heads-up dealer posts small blind');
 assert.equal(api.ui.game.players[(api.ui.game.dealer+1)%2].bet,20,'heads-up opponent posts big blind');
@@ -70,6 +84,64 @@ api.ui.mode='stud';api.ui.count=4;api.startGame();
 assert.equal(api.ui.game.currentBet,10,'bring-in wager');
 assert.equal(api.ui.game.players.reduce((n,p)=>n+p.bet,0),10,'antes excluded from street bets');
 assert.equal(api.pot(api.ui.game),30,'antes and bring-in in pot');
+function roundForBets(count=3) {
+  api.ui.mode='holdem';api.ui.count=count;api.startGame();
+  const g=api.ui.game;
+  g.street=1;g.currentBet=0;g.minRaise=20;g.acted=new Set();g.pending=new Set(g.players.map((_,i)=>i));g.actor=0;
+  for(const p of g.players)p.bet=0;
+  queue=[];return g;
+}
+let wager=roundForBets();
+api.takeAction('bet2');
+assert.equal(wager.currentBet,40,'2x bet');
+assert.equal(wager.players[0].bet,40);
+assert.equal(wager.minRaise,40,'last full bet sets minimum raise');
+wager=roundForBets();
+api.takeAction('bet4');
+assert.equal(wager.currentBet,80,'4x bet');
+wager=roundForBets();
+wager.currentBet=20;
+api.takeAction('raise2');
+assert.equal(wager.currentBet,60,'2x raise adds 40 to current 20');
+wager=roundForBets();
+wager.currentBet=20;
+wager.players.forEach(p=>{p.bet=20;p.total+=20;p.stack-=20});
+wager.players[0].stack=15;wager.acted=new Set([2]);
+api.takeAction('allin');
+assert.equal(wager.currentBet,35,'short all-in raises only by remaining stack');
+assert.equal(wager.players[0].stack,0);
+assert.equal(wager.actor,1);
+assert.equal(api.actions(wager,1).canRaise,true,'unacted rival can raise');
+api.takeAction('call');
+assert.equal(wager.actor,2);
+assert.equal(api.actions(wager,2).canRaise,false,'short all-in does not reopen a prior actor');
+wager=roundForBets();
+wager.players[0].stack=10;wager.acted=new Set([2]);
+api.takeAction('allin');
+assert.equal(wager.currentBet,10,'short opening all-in');
+api.takeAction('call');
+assert.equal(api.actions(wager,2).canRaise,true,'short opening bet can be completed by a prior checker');
+wager=roundForBets();
+wager.currentBet=20;
+wager.players.forEach(p=>{p.bet=20;p.total+=20;p.stack-=20});
+wager.players[0].stack=80;
+api.takeAction('allin');
+assert.equal(wager.currentBet,100,'full all-in raise');
+assert.equal(wager.minRaise,80,'next minimum raise respects all-in increment');
+assert.match(app.innerHTML,/ALL-IN/,'all-in visible on table');
+for(const mode of ['holdem','stud']){
+  api.ui.mode=mode;api.ui.count=4;api.ui.difficulty='easy';api.startGame();
+  let steps=0;
+  while(!api.ui.game.finished&&steps++<2000){
+    const g=api.ui.game;
+    if(g.actor===0){const a=api.actions(g,0);api.takeAction(a.canAllIn?'allin':a.canCall?'call':a.canCheck?'check':'fold');}
+    else {const job=queue.shift();assert(job,`${mode}: scheduled AI action`);job();}
+  }
+  assert(steps<2000,`${mode}: all-in hand completes`);
+  assert.equal(api.ui.game.players.reduce((sum,p)=>sum+p.stack,0),4000,`${mode}: all-in preserves chips`);
+  assert.match(app.innerHTML,/winner-banner/,`${mode}: final winner highlighted`);
+  queue=[];
+}
 for (const mode of ['holdem','stud']) for (const count of [2,4,6]) {
   api.ui.mode=mode;api.ui.count=count;api.ui.difficulty='easy';api.startGame();
   let hands=0,iterations=0;
